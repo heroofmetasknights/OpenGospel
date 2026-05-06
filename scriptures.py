@@ -15,23 +15,31 @@ wrk_dir = os.path.abspath(wrk_dir)
 scriptures_dir = wrk_dir + '/scriptures/'
 css_dir = scriptures_dir;
 config = wrk_dir + '/opengospel.conf'
-#--- NEW UPDATE CHECK LOGIC---#
-if not os.path.exists(scriptures_dir):
-	print("Scripture Data missing.  Generating HTML from database...")
-	# Safely creates the scriptures folder upon first run
-	os.makdirs(scriptures_dir, exists_ok=True)
+# --- STRICT FIRST-RUN LOGIC ---
+if not os.path.exists(lock_file):
+    print("First run detected. Generating HTML from database...")
+    
+    # Safely create the empty directory structure
+    os.makedirs(scriptures_dir, exist_ok=True)
+    
+    try:
+        # Run the generator script silently
+        subprocess.run(["python3", wrk_dir + "/generate.py"], check=True)
+        print("Generation complete!")
+        
+        # Create the lock file so this generation NEVER runs again
+        with open(lock_file, 'w') as f:
+            f.write("Initial HTML generation completed successfully.\n")
+            
+    except subprocess.CalledProcessError:
+        print("Error: Failed to generate scriptures.", file=sys.stderr)
+        sys.exit(1)
+# ------------------------------
 
-
-	try:
-		#Run the generator script silently
-		subprocess.run(["python3", wrk_dir + "/generate.py"], check=True)
-		print("Generation complete!")
-	except subprocess.CalledProcessError:
-		print("Error: Failed to generate scriptures.", file=sys.stderr)
-		sys.exit(1)
 
 # OpenGospel version change log
-ver = "0.3.3"
+ver = "0.3.4"
+	# 0.3.4: Re-created logic to run the update when it first launches, looking into making sure the lock file is in the scriptures folder to keep regenerating the files to a minimum# 
 	# 0.3.3: Added logic to create the scriptures directory on first run.
 	# 0.3.2: Changed location of working directory; Added update logic for working directory
 
