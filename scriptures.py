@@ -15,8 +15,20 @@ wrk_dir = os.path.abspath(wrk_dir)
 scriptures_dir = wrk_dir + '/scriptures/'
 css_dir = scriptures_dir;
 config = wrk_dir + '/opengospel.conf'
+#--- NEW UPDATE CHECK LOGIC---#
+if not os.path.exists(scriptures_dir):
+	print("Scripture Data missing.  Generating HTML from database...")
+	try:
+		#Run the generator script silently
+		subprocess.run(["python3", wrk_dir + "/generate.py"], check=True)
+		print("Generation complete!")
+	except subprocess.CalledProcessError:
+		print("Error: Failed to generate scriptures.", file=sys.stderr)
+		sys.exit(1)
+
 # OpenGospel version
-ver = "0.3.1"
+ver = "0.3.2"
+	# 0.3.2: Changed location of working directory; Added update logic for working directory
 
 class ConfigInit:
 	def modecss(style):
