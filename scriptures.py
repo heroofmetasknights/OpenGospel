@@ -18,6 +18,10 @@ config = wrk_dir + '/opengospel.conf'
 #--- NEW UPDATE CHECK LOGIC---#
 if not os.path.exists(scriptures_dir):
 	print("Scripture Data missing.  Generating HTML from database...")
+	# Safely creates the scriptures folder upon first run
+	os.makdirs(scriptures_dir, exists_ok=True)
+
+
 	try:
 		#Run the generator script silently
 		subprocess.run(["python3", wrk_dir + "/generate.py"], check=True)
@@ -26,8 +30,9 @@ if not os.path.exists(scriptures_dir):
 		print("Error: Failed to generate scriptures.", file=sys.stderr)
 		sys.exit(1)
 
-# OpenGospel version
-ver = "0.3.2"
+# OpenGospel version change log
+ver = "0.3.3"
+	# 0.3.3: Added logic to create the scriptures directory on first run.
 	# 0.3.2: Changed location of working directory; Added update logic for working directory
 
 class ConfigInit:
